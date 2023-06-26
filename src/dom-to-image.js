@@ -159,19 +159,23 @@
                 return canvas;
             });
 
-        function newCanvas(domNode) {
-            var canvas = document.createElement('canvas');
-            canvas.width = options.width || util.width(domNode);
-            canvas.height = options.height || util.height(domNode);
-
-            if (options.bgcolor) {
-                var ctx = canvas.getContext('2d');
-                ctx.fillStyle = options.bgcolor;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-            }
-
-            return canvas;
-        }
+function newCanvas(domNode) {
+      var canvas = document.createElement("canvas");
+      var ctx = canvas.getContext("2d");
+      ctx.mozImageSmoothingEnabled = false;
+      ctx.webkitImageSmoothingEnabled = false;
+      ctx.msImageSmoothingEnabled = false;
+      ctx.imageSmoothingEnabled = false;
+      var scale = options.scale || 1; // 默认值1
+      canvas.width = options.width * scale || util.width(domNode);
+      canvas.height = options.height * scale || util.height(domNode);
+      ctx.scale(scale, scale); // 添加了scale参数
+      if (options.bgcolor) {
+        ctx.fillStyle = options.bgcolor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+      return canvas;
+    }
     }
 
     function cloneNode(node, filter, root) {
