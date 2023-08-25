@@ -142,22 +142,24 @@
   }
 
   function draw(domNode, options) {
+    var ratio = window.devicePixelRatio || 1;
     return toSvg(domNode, options)
       .then(util.makeImage)
       .then(util.delay(100))
       .then(function (image) {
         var canvas = newCanvas(domNode);
-        canvas.getContext("2d").drawImage(image, 0, 0);
+        const ctx = canvas.getContext("2d");
+        ctx.scale(ratio, ratio);
+        ctx.drawImage(image, 0, 0);
         return canvas;
       });
 
     function newCanvas(domNode) {
       var canvas = document.createElement("canvas");
-      canvas.width = options.width || util.width(domNode);
-      canvas.height = options.height || util.height(domNode);
+      canvas.width = options.width || util.width(domNode) * ratio;
+      canvas.height = options.height || util.height(domNode) * ratio;
 
       if (options.bgcolor) {
-        var ctx = canvas.getContext("2d");
         ctx.fillStyle = options.bgcolor;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
@@ -225,8 +227,10 @@
         copyStyle(window.getComputedStyle(original), clone.style);
 
         function copyStyle(source, target) {
-          if (source.cssText) target.cssText = source.cssText;
-          else copyProperties(source, target);
+          if (source.cssText) {
+            target.cssText = source.cssText;
+            target.font = source.font;
+          } else copyProperties(source, target);
 
           function copyProperties(source, target) {
             util.asArray(source).forEach(function (name) {
